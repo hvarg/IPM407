@@ -1,0 +1,179 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{mathtools,xparse}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+
+\title{Tarea 1 - Multigrid}
+\author{Hernán Vargas \\ hernan.vargas@alumnos.usm.cl }
+\date{April 2017}
+
+\begin{document}
+
+\maketitle
+\begin{enumerate}
+    \item 
+    Considere el intervalo $0 \leq x \leq 1$ con nodos $x_j = \frac{j}{n}, 0 \leq j \leq n$.
+    Muestre que el k-ésimo modo de Fourier $w_{kj} = \sin{\frac{jk\pi}{n}}$ tiene una longitud de onda $l = \frac{2}{k}$.
+    ¿Cuál modo tiene longitud de onda $l = 8h$? ¿Y $l = \frac{1}{4}$?
+    
+    \textbf{R1.1)} Sabemos que un seno puede ser representado como:
+    \begin{equation}\label{1.1}
+        y(x) = A\sin{(\frac{2\pi}{T}x + \phi)}
+    \end{equation}
+    
+    con $T$ el periodo de oscilación, en este caso $A=1, \phi = 0, T=l$, luego:
+    \begin{equation}\label{1.2}
+        y(x_j) = w_{kj} = \sin{(\frac{jk\pi}{n})} = \sin{(x_j k\pi)}
+    \end{equation}
+    
+    de la comparación de (\ref{1.1}) y (\ref{1.2}) tenemos:
+    $$ x_jk\pi = x_j\frac{2\pi}{l} \implies k = \frac{2}{l} \implies l = \frac{2}{k} $$
+    \textbf{R1.2)} reemplazando para $l=8h$ obtenemos:
+    $$ k = \frac{2}{8h}=\frac{1}{4h} \implies 
+       w_{\frac{1}{4h}j} = \sin{(\frac{x_j\pi}{4h})}$$
+    \textbf{R1.3)} de la misma forma, reemplazando para $l=\frac{1}{4}$ tenemos:
+    $$ l=\frac{1}{4} \implies k= 8 \implies w_{8j}=\sin{(8x_j\pi)}$$
+
+    \item 
+    El número de condición de una matriz $\kappa (A) = \norm{A}_2 \norm{A^{-1}}_2$ da una idea de cuan bien el residual mide al error. En el siguiente ejercicio, use la propiedad $\norm{Ax} \leq \norm{A}\norm{x}$.
+
+    \begin{enumerate}
+        \item 
+        Partiendo de la relación $Ae = r$ y $A^{-1}f = u$, demuestre que:
+        $$\frac{\norm{r}_2}{\norm{f}_2} \leq \kappa(A)\frac{\norm{e}_2}{\norm{u}_2}$$
+        Entregue una interpretación de esta desigualdad cuando $\kappa$ es alto.
+        
+        \textbf{R2.a)} Directamente\footnote{asumiendo norma 2 en los calculos por simplicidad}:
+        \begin{equation}\label{2.1}
+            Ae = r \implies \norm{r} \leq \norm{A}\norm{e}
+        \end{equation}
+        \begin{equation}\label{2.2}
+            A^{-1}f=u \implies \norm{u} \leq \norm{A^{-1}} \norm{f}
+        \end{equation}
+        multiplicando (\ref{2.1}) por $\norm{u}$ y gracias a (\ref{2.2}):
+        $$
+            \norm{r} \norm{u} \leq \norm{A}\norm{e} \norm{u} \implies
+            \norm{r} \norm{u} \leq \norm{A}\norm{e} \norm{A^{-1}} \norm{f}
+        $$
+        como $\kappa (A) = \norm{A} \norm{A^{-1}}$ y multiplicando por $\frac{1}{\norm{u}\norm{f}}$:
+        \begin{equation}\label{r1}
+            \frac{\norm{r}}{\norm{f}} \leq \kappa(A)\frac{\norm{e}}{\norm{u}}    
+        \end{equation}
+        que es lo que buscábamos.
+        Cuando $\kappa(A) \gg 1$  la desigualdad pierde la capacidad de comparar el residual y el error.
+
+        \item Partiendo de las relaciones $Au = f$ y $A^{-1}r = e $, demuestre que:
+        $$\frac{\norm{e}_2}{\norm{u}_2} \leq \kappa(A)\frac{\norm{r}_2}{\norm{f}_2}$$
+        Entregue una interpretación de esta desigualdad cuando $\kappa$ es alto.
+        
+        \textbf{R2.b)} El mismo proceso que en 2.a:
+        \begin{equation}\label{2.3}
+            Au = f \implies \norm{f} \leq \norm{A}\norm{u}
+        \end{equation}
+        \begin{equation}\label{2.4}
+            A^{-1}r=e \implies \norm{e} \leq \norm{A^{-1}} \norm{r}
+        \end{equation}
+        multiplicando (\ref{2.3}) por $\norm{e}$ y gracias a (\ref{2.4}):
+        \begin{equation}\label{r2}
+            \norm{f} \norm{e} \leq \norm{A}\norm{u} \norm{e} \implies
+            \norm{f} \norm{e} \leq \norm{A}\norm{u} \norm{A^{-1}} \norm{r}
+        \end{equation}
+        multiplicando por $\frac{1}{\norm{u}\norm{f}}$ comprobamos que:
+        $$\frac{\norm{e}}{\norm{u}} \leq \kappa(A)\frac{\norm{r}}{\norm{f}}$$
+        Cuando $\kappa(A) \approx 1$ podemos verificar que un residual pequeño implicaría un error pequeño. Si $\kappa(A) \gg 1$ la desigualdad se cumplirá principalmente por $A$ por lo que no podremos decir nada respecto a la relación del error y el residual.
+        
+        \item Combine los resultados para llegar a:
+        $$\frac{1}{\kappa(A)}\frac{\norm{r}_2}{\norm{f}_2} 
+        \leq \frac{\norm{e}_2}{\norm{u}_2}
+        \leq \kappa(A)\frac{\norm{r}_2}{\norm{f}_2}$$
+        
+        \textbf{R2.c)} Multiplicando (\ref{r1}) por $\frac{1}{\kappa(A)}$ tenemos:
+        $$ \frac{1}{\kappa(A)}\frac{\norm{r}}{\norm{f}} \leq \frac{\norm{e}}{\norm{u}} $$
+        por transitividad con (\ref{r2}) logramos:
+        $$\frac{1}{\kappa(A)}\frac{\norm{r}}{\norm{f}} 
+        \leq \frac{\norm{e}}{\norm{u}}
+        \leq \kappa(A)\frac{\norm{r}}{\norm{f}}$$
+    \end{enumerate}
+
+    \item
+    Considere un método iterativo del tipo $v = v + B^{-1}(f-Av)$ aplicado al problema $Au = f$. Use los siguientes pasos para demostrar que la relajación de $Au=f$ es equivalente a relajar $Ae=r$ con estimación inicial $0$.
+    \begin{itemize}
+        \item 
+            Considere el problema $Au=f$ con una estimación inicial arbitraria $v = v_0$. ¿Cuál es el error y residual de la estimación inicial $v_0$?
+            
+            \textbf{3.1R)} 
+            $$ v = v_0 + B^{-1}(f-Av_0)$$
+            Sabemos $r=f-Av$ y $e = u-v$, como $v=v_0$ tenemos:
+            $$r_{v_0} = f - Av_0 = Au - Av_0 = A(u-v_0)$$ 
+            entonces: $$e_{v_0} = u-v_0 \implies r_{v_0} = Ae_{v_0}$$
+        \item 
+            Ahora considere la ecuación del residual $Ae=r_0=f-Av_0$.
+            ¿Cuál es el error y residual de la estimación inicial $e_0$?
+            
+            \textbf{3.2R)}
+            $$ e = e_0 + B^{-1}(r-Ae_0)$$
+            Digamos $v = e_0$, luego:
+            $$ r_{e_0} = f - Ae_0 = A(u - e_0)$$
+            $$ e_{e_0} = u - e_0 \implies r_{e_0} = Ae_{e_0}$$
+        \item Concluya que ambos problemas son equivalentes.
+        
+            \textbf{3.3R)} Si $v_0 = 0$, tenemos:
+            $$r = f - Av_0 = A(u - v_0) \implies r = Au$$
+            $$Ae = r = Au \implies e = u \implies r=Ae$$
+            Así que ambos problemas son equivalentes. 
+    \end{itemize}
+
+    \item 
+    Verifique que $I^{2h}_{h}w^h_k=\cos{\frac{k\pi}{2n}}w^{2h}_k$, donde $ w^h_{k,j}=\sin{\frac{jk\pi}{n}}, 1\leq k\leq \frac{n}{2}$, y $I^{2h}_h$ es el operador \emph{full weightening}.
+    
+    \textbf{4R)} Tenemos:
+    $$ I^{2h}_h v^h = \frac{1}{4} 
+        \left( \begin{array}{ccccc}
+            1 & 2 & 1 &   &   \\
+              & 1 & 2 & 1 &   \\
+              &   &   & \ddots &  \\
+        \end{array} \right)
+        \left( \begin{array}{c}
+            v_{j=1} \\
+            v_{j=2} \\
+            \vdots \\
+        \end{array} \right)$$
+    Para cada fila $j$ se cumple que: 
+        $$v^{2h}_j = \frac{1}{4} (v^h_{2j-1} + 2v^h_{2j} + v^h_{2j+1})$$
+    aplicando a $w^h_{k,j} = \sin{(\frac{jk\pi}{n})} = v^h_j$ nos queda:
+    \begin{align*}
+        (I^{2h}_hw^h_k)_j &= \frac{1}{4} \Bigg[
+                \sin{\bigg(\frac{(2j-1)k\pi}{n}\bigg)} +
+                2\sin{\bigg(\frac{2jk\pi}{n}\bigg)} +
+                \sin{\bigg(\frac{(2j+1)k\pi}{n}\bigg)}
+            \Bigg] \\
+            &= \frac{1}{4} \Bigg[
+                \sin{\bigg(\frac{2jk\pi}{n} - \frac{k\pi}{n} \bigg)} +
+                2\sin{\bigg(\frac{2jk\pi}{n}\bigg)} +
+                \sin{\bigg(\frac{2jk\pi}{n} + \frac{k\pi}{n} \bigg)} \Bigg]
+    \end{align*}
+    Por la identidad trigonométrica 
+    $\sin{(x\pm y)} = \sin{(x)}\cos{(y)}\pm \cos{(x)}\sin{(y)}$ tenemos:
+    \begin{align*}
+        (I^{2h}_hw^h_k)_j &= \frac{1}{4} \Bigg[
+                2\sin{\bigg(\frac{2jk\pi}{n}\bigg)}\cos{\bigg(\frac{k\pi}{n}\bigg)}
+                +2 \sin{\bigg(\frac{2jk\pi}{n}\bigg)}
+            \Bigg] \\
+            &= \frac{1}{2} \sin{\bigg(\frac{2jk\pi}{n}\bigg)}
+            \Bigg[
+                \cos{\bigg(\frac{k\pi}{n}\bigg)} + 1
+            \Bigg]
+    \end{align*}    
+    Además tenemos que $2\cos{(x)} = 1+\cos{(2x)}$, entonces:
+    $$
+        (I^{2h}_hw^h_k)_j =
+            \sin{\bigg(\frac{2jk\pi}{n}\bigg)}
+            \cos^2{\bigg(\frac{k\pi}{2n}\bigg)}
+    $$
+    Por último, $\sin{(\frac{2jk\pi}{n})} = w^{2h}_{k,j}$, por lo que se cumple que:
+    $$
+        I^{2h}_hw^h_k = \cos^2{\bigg(\frac{k\pi}{2n}\bigg)} w^{2h}_k
+    $$
+\end{enumerate}
+
+\end{document}
