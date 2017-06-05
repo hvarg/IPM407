@@ -1,0 +1,256 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{mathtools,xparse}
+\usepackage{amsfonts}
+\usepackage[margin=20mm]{geometry}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+
+\renewcommand{\arraystretch}{2}
+
+\title{Tarea 2 - Métodos basados en Fourier}
+\author{Hernán Vargas \\ hernan.vargas@alumnos.usm.cl }
+\date{Mayo 2017}
+
+\begin{document}
+
+\maketitle
+\begin{enumerate}
+    \item Estudio de la ortogonalidad discreta de las series de Fourier. Sea
+    \begin{equation}\label{p1eq1}
+        I = \sum_{n=0}^{N-1}e^{ikx_n}e^{-ik'x_n} = \sum_{n=0}^{N-1}e^{ih(k-k')n}
+    \end{equation}
+    Encuentre $I$ para los casos en que $h(k-k')$ es múltiplo de $2\pi$ y cuando no. \emph{Ayuda: use la identidad}
+    \begin{equation}\label{p1eq2}
+        \sum_{n=0}^{N-1}r^n = \frac{1-r^N}{1-r}, \text{si $r\neq 1$}
+    \end{equation}
+    \textbf{R1)} Si $h(k-k')$ es múltiplo de $2\pi$ entonces $h(k-k') = 2\pi\alpha, \, \forall \alpha \in \mathbb{Z}$, luego $ e^{ih(k-k')n} = e^{i2\pi\alpha n} $. Podemos reescribir la ecuación~\ref{p1eq1} como:
+    $$ I = \sum_{n=0}^{N-1}e^{i2\pi\alpha n} $$
+    Como $e^{i\varphi} = \cos{\varphi} + i\sin{\varphi}$ nos queda:
+    $$
+        I = \sum_{n=0}^{N-1}\cos(2\pi\alpha n) + i\sin(2\pi\alpha n)
+          = \sum_{n=0}^{N-1}1 + 0i 
+          = N
+    $$
+    
+    Si $h(k-k')$ NO es múltiplo de $2\pi$ entonces $h(k-k') = 2\pi\alpha+\beta, \, \forall \alpha \in \mathbb{Z}, \beta \in ]0,2\pi[$, luego, utilizando la identidad~\ref{p1eq2} tenemos:
+    $$ I = \frac{1-e^{i(2\pi\alpha + \beta)N}}{1-e^{i(2\pi\alpha+\beta)}}, \, \forall \alpha \in \mathbb{Z},\beta \in ]0,2\pi[ $$
+    
+    
+    \item El teorema de convolución discreta. Sea la convolución discreta definida por
+    \begin{equation}\label{p2eq1}
+        c_j = \sum_{n=0}^{N-1} f_ng_{j-n} = (f \star g)_j
+    \end{equation}
+    Pruebe que 
+    \begin{equation}\label{p2eq2}
+        C_k = NF_kG_k
+    \end{equation}
+    \emph{Ayuda: el resultado de la pregunta 1 puede ser útil}\\
+    \textbf{R2)} Tenemos:
+    $$
+        c_j = \sum_{p=0}^{N-1} C_p e^{\frac{i2\pi pj}{N}} \qquad
+        f_n = \sum_{p=0}^{N-1} F_p e^{\frac{i2\pi pn}{N}} \qquad
+        g_{j-n} = \sum_{p=0}^{N-1} G_p e^{\frac{i2\pi p(j-n)}{N}}
+    $$
+    Aplicando a la ecuación~\ref{p2eq1} y reordenando nos queda:
+    %pag101
+    \begin{align*}
+        \sum_{p=0}^{N-1} C_p e^{\frac{i2\pi pj}{N}} &= 
+        \sum_{n=0}^{N-1}\Big[
+            \big(\sum_{p=0}^{N-1} F_p e^{\frac{i2\pi pn}{N}}\big)
+            \big(\sum_{k=0}^{N-1} G_k e^{\frac{i2\pi k(j-n)}{N}}\big)\Big]\\
+        &=  \sum_{k=0}^{N-1} G_k e^{\frac{i2\pi jk}{N}}
+            \sum_{p=0}^{N-1} F_p 
+            \big(\sum_{n=0}^{N-1} e^{\frac{i2\pi n(p-k)}{N}}\big)\\
+        &=  \sum_{k=0}^{N-1} G_k e^{\frac{i2\pi jk}{N}}
+            \sum_{p=0}^{N-1} F_p 
+            \big(N)\\
+        C_k &=  N F_k G_k
+    \end{align*}
+%            &= \sum_{p=0}^{N-1}
+%          \Big[\big(\sum_{n=0}^{N-1} F_p e^{i2\pi pn}\big)
+%                \big(\sum_{n=0}^{N-1} G_p e^{i2\pi p(j-n)}\big)\Big]\\
+%            &= \sum_{p=0}^{N-1} F_p G_p
+%          \Big[\big(\sum_{n=0}^{N-1} e^{i2\pi pn}\big)
+%                \big(\sum_{n=0}^{N-1} e^{i2\pi p(j-n)}\big)\Big]\\
+%            &= \sum_{p=0}^{N-1} F_p G_p
+%          \Big[\big(\sum_{n=0}^{N-1} e^{i2\pi pn}\big)
+%                \big(\sum_{n=0}^{N-1} e^{i2\pi p(j-n)}\big)\Big]\\
+    
+    
+    \item La ecuación de Helmholtz en 1D es
+    \begin{equation}\label{p3eq1}
+        -\frac{\partial^2u}{\partial x^2} + \sigma^2u=f
+    \end{equation}
+    y al ser discretizada con diferencias centradas genera una matriz $A$ con los valores $2+\sigma^2 h^2$ en la diagonal principal y $-1$ en las dos diagonales contiguas.
+    \begin{enumerate}
+        \item Discretice la ecuación y llegue a la matriz $A$
+        \item Utilizando transformadas discretas de Fourier, demuestre que los valores propios de $A$ son
+        \begin{equation}\label{p3eq2}
+            \lambda_k = 4\sin^2\Big(\frac{k\pi}{N}\Big) + \sigma^2h^2
+        \end{equation}
+    \end{enumerate}
+    \textbf{R3a)} Sea:
+    $$ \frac{\partial^2u}{\partial x^2} = \frac{u_{i-1}-2u_{i}+u_{i+1}}{h^2} $$
+    La ecuación~\ref{p3eq1} queda como:
+    \begin{align}\begin{split}\label{r3a}
+        -(\frac{u_{i-1}-2u_{i}+u_{i+1}}{h^2}) + \sigma^2u &= f \\
+        2u_{i} - u_{i-1} - u_{i+1} + h^2\sigma^2u_{i} &= h^2f \\
+        (2+h^2\sigma^2)u_{i} - u_{i-1} - u_{i+1} &= h^2f
+    \end{split}\end{align}
+    La representación matricial de la ecuación queda $A\vec{u} = h^2\vec{f}$ con $A$ como:
+    $$ A =
+    \begin{bmatrix}
+        2+h^2\sigma^2 & -1 &  &  &  \\
+        -1 & 2+h^2\sigma^2 & \ddots &  &  \\
+          & \ddots & \ddots & \ddots &  \\
+         &  & \ddots & \ddots & -1 \\
+         &  &  & -1  & 2+h^2\sigma^2
+    \end{bmatrix}
+    $$
+    \textbf{R3b)} Aplicando la DFT nos queda:
+    \begin{align*}
+        u_n &= \sum_{k=0}^{N-1} U_ke^{\frac{i2\pi kn}{N}}\\
+        u_{n+1} &= \sum_{k=0}^{N-1} U_ke^{\frac{i2\pi k(n+1)}{N}} =
+            \sum_{k=0}^{N-1} U_ke^{\frac{i2\pi kn}{N}}e^{\frac{i2\pi k}{N}}\\
+        u_{n-1} &= 
+            \sum_{k=0}^{N-1} U_ke^{\frac{i2\pi kn}{N}}e^{\frac{-i2\pi k}{N}}\\
+        f_n &= \sum_{k=0}^{N-1} F_ke^{\frac{i2\pi kn}{N}}
+    \end{align*}
+    Reemplazando en la ecuación~\ref{r3a} y reordenando tenemos\footnote{
+    Por simplicidad se escribe $\sum$ en vez de $\sum_{k=0}^{N-1}$}:
+    \begin{align*}
+        (2+h^2\sigma^2)\sum U_ke^{\frac{i2\pi kn}{N}} - 
+        \sum U_ke^{\frac{i2\pi kn}{N}} e^{\frac{-i2\pi k}{N}} -
+        \sum U_ke^{\frac{i2\pi kn}{N}} e^{\frac{i2\pi k}{N}}
+        &= h^2 \sum F_ke^{\frac{i2\pi kn}{N}} \\
+        \sum\Big[ U_ke^{\frac{i2\pi kn}{N}} \big(
+        (2+h^2\sigma^2) - (e^{\frac{-i2\pi k}{N}} + e^{\frac{i2\pi k}{N}})
+        \big) \Big] &= h^2 \sum F_ke^{\frac{i2\pi kn}{N}} \\
+    \end{align*}
+    Aplicando la identidad de Euler en 
+    $(e^{\frac{-i2\pi k}{N}} + e^{\frac{i2\pi k}{N}})$:
+    $$  e^{\frac{i2\pi k}{N}} + e^{\frac{-i2\pi k}{N}} = 
+        \cos(\frac{2\pi k}{N}) + i\sin{\frac{2\pi k}{N}} + 
+        \cos(\frac{2\pi k}{N}) - i\sin{\frac{2\pi k}{N}} = 
+        2 \cos(\frac{2\pi k}{N})  $$
+    Reemplazando:
+    \begin{align*}
+        \sum\Big[ U_ke^{\frac{i2\pi kn}{N}} \big(
+        2 + h^2\sigma^2 - 2\cos (\frac{2\pi k}{N})
+        \big) \Big] &= h^2 \sum F_ke^{\frac{i2\pi kn}{N}} \\
+        \sum\Big[ U_ke^{\frac{i2\pi kn}{N}} \big(
+        2 (1 - \cos (\frac{2\pi k}{N})) + h^2\sigma^2
+        \big) \Big] &= h^2 \sum F_ke^{\frac{i2\pi kn}{N}} \\
+    \end{align*}
+    Sabemos que:
+    $$  \cos (\frac{2\pi k}{N}) = 
+        \cos^2 (\frac{\pi k}{N}) - \sin^2 (\frac{\pi k}{N}) = 
+        1 - 2\sin^2 (\frac{\pi k}{N})  $$
+    Luego:
+    $$ \sum\Big[ U_ke^{\frac{i2\pi kn}{N}} \big(
+        4\sin^2 (\frac{\pi k}{N}) + h^2\sigma^2
+        \big) \Big] = h^2 \sum F_ke^{\frac{i2\pi kn}{N}} $$
+    $$ U_k \big(4\sin^2 (\frac{\pi k}{N}) + h^2\sigma^2 \big) = h^2 F_k $$
+    Podemos generar la matriz $A$ para este problema como:
+    $$ A =
+    \begin{bmatrix}
+        4\sin^2 (\frac{\pi k}{N}) + h^2\sigma^2 & & &  \\
+         & 4\sin^2 (\frac{\pi k}{N}) + h^2\sigma^2 & & \\
+         & & \ddots & \\
+        &  & & 4\sin^2 (\frac{\pi k}{N}) + h^2\sigma^2
+    \end{bmatrix}
+    $$
+    Como es una matriz diagonal, sus valores serán:
+    $\lambda_k = 4\sin^2\Big(\frac{k\pi}{N}\Big) + \sigma^2h^2$.
+    
+    \item Considere el problema con condiciones de contorno periódicas en 2 dimensiones cuya discretización es
+    \begin{equation}\label{p4eq1}
+        a(u_{m-1,n} + u_{m+1,n}) + b(u_{m,n-1}+u_{m,n+1}) + cu_{m,n} = f_{m,n}
+    \end{equation}
+    con $m=0,\dots,M-1$ y $n=0,\dots,N-1$. Demuestre que la relación entre las transformadas de Fourier de $u$ y $f$ es
+    \begin{equation}\label{p4eq2}
+        U_{jk} = \frac{F_{jk}}{2a\sin^2(\frac{\pi j}{M})+2b\sin^2(\frac{\pi k}{N})+c}
+    \end{equation}
+    \textbf{R4)} Aplicando DFT a cada elemento de la ecuación tenemos:
+        $$  u_{m,n} = \sum_{j=0}^{M-1} \sum_{k=0}^{N-1} U_{jk}
+                e^{i2\pi(\frac{jm}{M} + \frac{kn}{N})}
+            \qquad\qquad
+            f_{m,n} = \sum_{j=0}^{M-1} \sum_{k=0}^{N-1} F_{jk}
+                e^{i2\pi(\frac{jm}{M} + \frac{kn}{N})}  $$
+        $$  u_{m+1,n} = \sum_{j=0}^{M-1} \sum_{k=0}^{N-1} U_{jk}
+                e^{i2\pi(\frac{jm}{M} + \frac{j}{M}+ \frac{kn}{N})}
+            \qquad\qquad
+            u_{m-1,n} = \sum_{j=0}^{M-1} \sum_{k=0}^{N-1} U_{jk}
+                e^{i2\pi(\frac{jm}{M} - \frac{j}{M} + \frac{kn}{N})}  $$
+        $$  u_{m,n+1} = \sum_{j=0}^{M-1} \sum_{k=0}^{N-1} U_{jk}
+                e^{i2\pi(\frac{jm}{M} + \frac{kn}{N} + \frac{k}{N}})
+            \qquad\qquad
+            u_{m,n-1} = \sum_{j=0}^{M-1} \sum_{k=0}^{N-1} U_{jk}
+                e^{i2\pi(\frac{jm}{M} + \frac{kn}{N} - \frac{k}{N}})  $$
+    Reemplazando en la ecuación~\ref{p4eq1} nos queda:
+    $$ \sum_{j=0}^{M-1} \sum_{k=0}^{N-1} U_{jk}e^{i2\pi(\frac{jm}{M} + \frac{kn}{N})}
+    \Big[ a \big(e^{\frac{i2\pi j}{M}} + e^{\frac{-i2\pi j}{M}} \big) +
+          b \big(e^{\frac{i2\pi k}{N}} + e^{\frac{-i2\pi k}{N}} \big) + c \Big] 
+    = \sum_{j=0}^{M-1} \sum_{k=0}^{N-1} F_{jk}e^{i2\pi(\frac{jm}{M} + \frac{kn}{N})}
+    $$
+    Por la identidad de Euler nos queda:
+    $$ \sum_{j=0}^{M-1} \sum_{k=0}^{N-1} U_{jk}
+    \Big[ a \big(2\cos (\frac{2\pi j}{M}) \big) +
+          b \big(2\cos (\frac{2\pi k}{N}) \big) + c \Big] 
+          e^{i2\pi(\frac{jm}{M} + \frac{kn}{N})}
+    = \sum_{j=0}^{M-1} \sum_{k=0}^{N-1} F_{jk}e^{i2\pi(\frac{jm}{M} + \frac{kn}{N})}
+    $$
+    $$  U_{jk} \Big[ 2a \cos \big(\frac{2\pi j}{M}\big) +
+        2b \cos \big(\frac{2\pi k}{N}\big) + c \Big] = F_{jk} $$
+    Despejando:
+    $$  U_{jk} = \frac{F_{jk}}{ 2a \cos \big(\frac{2\pi j}{M}\big) +
+        2b \cos \big(\frac{2\pi k}{N}\big) + c }$$
+    
+    \item Para problemas en 2 y 3 dimensiones, como alternativa a ocupar una DFT multidimensional, existe la posibilidad de hacer una transformada unidimensional a lo largo de una línea, y resolver un sistema tridiagonal para cada una de las líneas. Esta pregunta explora esta alternativa. Usando el mismo problema de la pregunta 4 como ejemplo:
+    \begin{enumerate}
+        \item Digamos que elegimos la dirección $x$ (iterador $m$) para realizar la DFT:
+        \begin{equation}\label{p5eq1}
+            u_{mn} = \sum_{j=-\frac{M}{2}+1}^{\frac{M}{2}} U_{jn}e^{\frac{i2\pi jm}{M}}
+        \end{equation}
+        \begin{equation}\label{p5eq2}
+            f_{mn} = \sum_{j=-\frac{M}{2}+1}^{\frac{M}{2}} F_{jn}e^{\frac{i2\pi jm}{M}}
+        \end{equation}
+        y reemplazamos estas expresiones en la ecuación discretizada (de la pregunta 4) ¿Cómo queda la expresión? Demuestre que la relacion entre $U_{jn}$ y $F_{jn}$ se puede expresar como un sistema tridiagonal para cada $j$.
+        \item Si un sistema tridiagonal $N\times N$ toma $3N$ operaciones, estime el costo computacional e este algoritmo, y compárelo con el del problema 4. ¿Cuál es más eficiente?
+    \end{enumerate}    
+    
+    \textbf{R5a)} Reemplazando la DFT a la parte izquierda de la ecuación~\ref{p4eq1} tenemos\footnote{Por simplicidad con $\sum_{j=0}^{M-1}$ como $\sum$.}:
+    $$
+        a ( \sum U_{jn} e^{\frac{i2\pi j(m-1)}{M}} + 
+            \sum U_{jn} e^{\frac{i2\pi j(m+1)}{M}}) + 
+        b ( \sum U_{j(n-1)} e^{\frac{i2\pi jm}{M}} +
+            \sum U_{j(n+1)} e^{\frac{i2\pi jm}{M}}) + 
+        c \sum U_{jn} e^{\frac{i2\pi jm}{M}} 
+    $$ $$
+        a \sum U_{jn} e^{\frac{i2\pi jm}{M}} 
+            (e^{\frac{-i2\pi j}{M}} + e^{\frac{i2\pi j}{M}}) + 
+        b \sum (U_{j(n-1)}  + U_{j(n+1)}) e^{\frac{i2\pi jm}{M}} + 
+        c \sum U_{jn} e^{\frac{i2\pi jm}{M}} 
+    $$ $$
+        \sum \Big[
+        a U_{jn} \big(2\cos(\frac{2\pi j}{M})\big) + 
+        b (U_{j(n-1)}  + U_{j(n+1)}) + cU_{jn} \Big] e^{\frac{i2\pi jm}{M}}
+    $$
+    Reordenando nos queda:
+    \begin{align*}
+        \sum \Big[U_{jn} \big(2a\cos(\frac{2\pi j}{M}) + c \big) + 
+        bU_{j(n-1)}  + bU_{j(n+1)} \Big] e^{\frac{i2\pi jm}{M}} &= 
+        \sum F_{jn} e^{\frac{i2\pi jm}{M}} \\
+        \big(2a\cos(\frac{2\pi j}{M}) + c \big) U_{jn} + bU_{j(n-1)}  + bU_{j(n+1)}
+        &= F_{jn}
+    \end{align*}
+    Obteniendo el sistema tridiagonal que buscábamos.
+ 
+    \textbf{R5b)} Para este algoritmo debemos aplicar una transformada de Fourier y su inversa por linea y resolver el problema el sistema tridiagonal: $M(3N + 2N\log(N))$
+    
+    Para el algoritmo del problema 4 se debe aplicar una transformada de Fourier en 
+    dos dimensiones y su inversa y resolver el sistema (matriz densa):
+    $MN + 2MN\log(MN)$, más lento que resolver por linea.
+\end{enumerate}
+
+\end{document}
